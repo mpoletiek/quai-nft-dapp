@@ -14,6 +14,7 @@ contract TestERC721 is ERC721URIStorage, Ownable {
     uint256 public mintPrice = (5 ether);
     uint256 public supply = 10000;
     string public baseTokenURI;
+    uint256 public maxMintPerAddress = 2;
     
     constructor(address initialOwner) Ownable(initialOwner) ERC721("TestERC721", "TNFT") { }
 
@@ -24,6 +25,7 @@ contract TestERC721 is ERC721URIStorage, Ownable {
         returns (uint256)
     {
         require(msg.value == mintPrice, "5 QUAI to Mint");
+        require(balanceOf(_recipient) < maxMintPerAddress, "You can only mint 2 NFTs.");
         uint256 tokenId = tokenIds;
         require(tokenId < supply, "No more NFTs");
         _mint(_recipient, tokenId);
@@ -59,6 +61,16 @@ contract TestERC721 is ERC721URIStorage, Ownable {
         return mintPrice;
     }
 
+    // Update Max Mint Per Address
+    function updateMaxMintPerAddress(uint256 _maxMintPerAddress)
+        public
+        onlyOwner()
+        returns (uint256)
+    {
+        maxMintPerAddress = _maxMintPerAddress;
+        return maxMintPerAddress;
+    }
+
     // Update Base Token URI
     function updateBaseTokenURI(string memory _baseTokenURI)
         public
@@ -83,7 +95,7 @@ contract TestERC721 is ERC721URIStorage, Ownable {
             return "";
         }
         
-        return string(abi.encodePacked(baseURI, _toString(tokenId)));
+        return string(abi.encodePacked(baseURI, _toString(tokenId), ".json"));
     }
 
     // Helper function to convert uint256 to string
