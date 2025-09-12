@@ -1,0 +1,28 @@
+{
+  "description": "The Mojis are a collection of 4292 unique digital collectibles on the Quai Network. Published for the purposes of demonstrating how to build an NFT Project on Quai Network. Artwork is attributed to the OpenMoji project. See attributes for more information.",
+  "external_url": "http://localhost:3000",
+  "image": "ipfs://Qmc2qFt9Qx68F7ZgfpLRBdtsURgtCXbsAHD95AVgMP1gFY/1914.png",
+  "name": "WEIGHT LIFTER",
+  "attributes": [
+    {
+      "trait_type": "Attribution",
+      "value": "All emojis designed by OpenMoji – the open-source emoji and icon project. License: CC BY-SA 4.0"
+    },
+    {
+      "trait_type": "OpenMoji URL",
+      "value": "https://openmoji.org/"
+    },
+    {
+      "trait_type": "License URL",
+      "value": "https://creativecommons.org/licenses/by-sa/4.0/"
+    },
+    {
+      "trait_type": "Token ID",
+      "value": "1914"
+    },
+    {
+      "trait_type": "Unicode Codepoint",
+      "value": "1F3CB"
+    }
+  ]
+}

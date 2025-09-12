@@ -41,14 +41,14 @@ export default function OwnerControls({ contractAddress, isOwner, account }: Own
     else if(type == 'updatePrice'){
       try {
         const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-        if(newPrice > 0){
-          const priceQuai = quais.parseQuai(String(newPrice));
-          console.log("New Price Value: "+priceQuai);
-          const contractTransaction = await ERC721contract.updateMintPrice(priceQuai);
-          const txReceipt = await contractTransaction.wait();
-          console.log(txReceipt);
-          return Promise.resolve({ result: txReceipt, method: "updateMintPrice" });
-        }
+        
+        const priceQuai = quais.parseQuai(String(newPrice));
+        console.log("New Price Value: "+priceQuai);
+        const contractTransaction = await ERC721contract.updateMintPrice(priceQuai);
+        const txReceipt = await contractTransaction.wait();
+        console.log(txReceipt);
+        return Promise.resolve({ result: txReceipt, method: "updateMintPrice" });
+        
       } catch (err) {
         return Promise.reject(err);
       }

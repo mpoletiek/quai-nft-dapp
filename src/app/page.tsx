@@ -499,7 +499,7 @@ export default function Mint() {
                           	className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-lg font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-red-500/25"
                           	onClick={() => handleMint()}
                         	>
-                          	🚀 Mint NFT ({mintPrice ? `${mintPrice.toLocaleString()} QUAI` : 'Loading...'})
+                          	🚀 Mint NFT ({mintPrice ? `${mintPrice.toLocaleString()} QUAI` : '0 QUAI'})
                         	</button>
                         	{maxMintPerAddress > 0 && (
                           	<div className="text-center p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">

@@ -12,11 +12,11 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 contract TestERC721 is ERC721URIStorage, Ownable {
     uint256 public tokenIds = 0;
     uint256 public mintPrice = (5 ether);
-    uint256 public supply = 10000;
-    string public baseTokenURI;
-    uint256 public maxMintPerAddress = 2;
+    uint256 public supply = 4291;
+    string public baseTokenURI = "ipfs://QmZdegfWQ1pR4MEyQff7xnV1J47aLUDAhpR5GjsxrdWtFn/";
+    uint256 public maxMintPerAddress = 5;
     
-    constructor(address initialOwner) Ownable(initialOwner) ERC721("TestERC721", "TNFT") { }
+    constructor(address initialOwner) Ownable(initialOwner) ERC721("The Mojis", "TMJ") { }
 
     // Mint NFT 
     function mint(address _recipient)
@@ -24,7 +24,7 @@ contract TestERC721 is ERC721URIStorage, Ownable {
         payable
         returns (uint256)
     {
-        require(msg.value == mintPrice, "5 QUAI to Mint");
+        require(msg.value == mintPrice, "Not enough QUAI to mint");
         require(balanceOf(_recipient) < maxMintPerAddress, "You can only mint 2 NFTs.");
         uint256 tokenId = tokenIds;
         require(tokenId < supply, "No more NFTs");
