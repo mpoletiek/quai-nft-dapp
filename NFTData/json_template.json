@@ -1,20 +1,28 @@
 {
-  "description": "The Mojis are a collection of 4292 unique digital collectibles on the Quai Network. Published for the purposes of demonstrating how to build an NFT Project on Quai Network. Artwork is attributed to the OpenMoji project. See attributes for more information.", 
-  "external_url": "http://localhost:3000",
+  "description": "A unique digital collectible from the Quai NFT Collection. This NFT is part of an example project demonstrating how to build NFT dApps on the Quai Network. Each token represents a unique emoji from the OpenMoji project.", 
+  "external_url": "https://quai.network",
   "image": "ipfs://<ipfs_hash>/<token_id>.png",
   "name": "<emoji_name>",
   "attributes": [
     {
+      "trait_type": "Collection",
+      "value": "Quai NFT Example"
+    },
+    {
+      "trait_type": "Network",
+      "value": "Quai Network"
+    },
+    {
       "trait_type": "Attribution",
-      "value": "All emojis designed by OpenMoji – the open-source emoji and icon project. License: CC BY-SA 4.0"
+      "value": "Emoji designed by OpenMoji – the open-source emoji and icon project"
+    },
+    {
+      "trait_type": "License",
+      "value": "CC BY-SA 4.0"
     },
     {
       "trait_type": "OpenMoji URL",
       "value": "https://openmoji.org/"
-    },
-    {
-      "trait_type": "License URL",
-      "value": "https://creativecommons.org/licenses/by-sa/4.0/"
     }
   ]
 }

@@ -1,26 +1,43 @@
-# Quai NFT dApp
+# Quai Network NFT dApp Example
 
-A modern, responsive NFT marketplace built on the Quai Network. This dApp allows users to mint, trade, and manage NFTs with a beautiful black and red theme and glass morphism design.
+A comprehensive example of how to build an NFT dApp on the Quai Network. This project demonstrates best practices for creating, deploying, and managing NFTs with a modern React frontend and Solidity smart contracts.
 
-## Features
+## 🎯 What This Example Demonstrates
 
+- **Smart Contract Development**: ERC721 NFT contract with minting, burning, and owner controls
+- **Frontend Integration**: React/Next.js dApp with wallet connection and contract interaction
+- **Metadata Management**: Automated generation and IPFS integration for NFT metadata
+- **Deployment Pipeline**: Complete deployment scripts for Quai Network
+- **Modern UI/UX**: Glass morphism design with responsive layout
+
+## ✨ Key Features
+
+### Smart Contract Features
+- 🪙 **Public Minting**: Anyone can mint NFTs for a configurable price
+- 🔥 **Burn Functionality**: NFT owners can burn their tokens
+- 👑 **Owner Controls**: Update supply, pricing, metadata, and withdraw funds
+- 📊 **Supply Management**: Configurable maximum supply and mint limits per address
+- 🔗 **Automatic Metadata**: Dynamic token URI generation
+
+### Frontend Features
 - 🎨 **Modern UI**: Glass morphism design with black and red theme
 - 🔗 **Wallet Integration**: Connect with Pelagus wallet
-- 🪙 **NFT Minting**: Mint NFTs with customizable pricing
-- 👑 **Owner Controls**: Update supply, pricing, and withdraw funds
 - 📱 **Responsive Design**: Works on all devices
 - ⚡ **Real-time Updates**: Live contract data and transaction status
+- 🔍 **Token Lookup**: Explore individual token metadata
+- 📊 **Portfolio Tracking**: View owned NFTs and minting statistics
 
-## Prerequisites
+## 🚀 Quick Start
 
-Before you begin, ensure you have the following installed:
+### Prerequisites
 
 - [Node.js](https://nodejs.org/) (v18 or higher)
 - [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
 - [Pelagus Wallet](https://chromewebstore.google.com/detail/pelagus/nhccebmfjcbhghphpclcfdkkekheegop) browser extension
 - Git
+- QUAI tokens for deployment and testing (get from [Quai Network faucet](https://faucet.quai.network/))
 
-## Installation
+### Installation
 
 1. **Clone the repository:**
    ```bash
@@ -33,56 +50,85 @@ Before you begin, ensure you have the following installed:
    npm install
    ```
 
-## Environment Setup
-
-1. **Create environment file:**
+3. **Set up environment:**
    ```bash
-   cp example.env .env
+   cp env.example .env
+   # Edit .env with your configuration
    ```
-
-2. **Update `.env` with your values:**
-   ```env
-   # Quai Network Configuration
-   RPC_URL=https://orchard.rpc.quai.network
-   CHAIN_ID=15000
    
-   # Your wallet private key (keep this secure!)
-   CYPRUS1_PK=YOUR_PRIVATE_KEY_HERE
-   
-   # Your wallet address (same as the one derived from private key)
-   INITIAL_OWNER=YOUR_WALLET_ADDRESS_HERE
-   
-   # Contract address (will be set after deployment)
-   NEXT_PUBLIC_DEPLOYED_CONTRACT=YOUR_CONTRACT_ADDRESS_HERE
-   ```
+   **Note**: The `env.example` file contains all the configuration options you need. Simply copy it to `.env` and update the values for your NFT collection.
 
-   **⚠️ Security Note:** Never commit your private key to version control. Keep your `.env` file secure and add it to `.gitignore`.
+### Configuration
 
-## Smart Contract Setup
-
-### 1. Compile the Contract
-
-```bash
-npx hardhat compile
-```
-
-This will compile the `TestERC721.sol` contract and generate the necessary artifacts.
-
-### 2. Deploy the Contract
-
-```bash
-npx hardhat run scripts/deployERC721.js
-```
-
-### 3. Update Environment Variables
-
-After deployment, copy the contract address and update your `.env` file:
+Configure your NFT collection by editing the `.env` file:
 
 ```env
-NEXT_PUBLIC_DEPLOYED_CONTRACT=0xYourDeployedContractAddress
+# Quai Network Configuration
+RPC_URL=https://orchard.rpc.quai.network
+CHAIN_ID=15000
+
+# Deployment Configuration
+CYPRUS1_PK=YOUR_PRIVATE_KEY_HERE
+INITIAL_OWNER=YOUR_WALLET_ADDRESS_HERE
+
+# NFT Collection Configuration
+NFT_NAME=Your NFT Collection
+NFT_SYMBOL=YNC
+MINT_PRICE=5000000000000000000  # 5 QUAI in wei
+MAX_SUPPLY=1000
+BASE_TOKEN_URI=ipfs://YOUR_IPFS_HASH/
+MAX_MINT_PER_ADDRESS=5
+
+# Frontend Configuration (set after deployment)
+NEXT_PUBLIC_DEPLOYED_CONTRACT=YOUR_CONTRACT_ADDRESS_HERE
 ```
 
-## Running the Application
+**⚠️ Security Note:** Never commit your private key to version control. Keep your `.env` file secure and add it to `.gitignore`.
+
+## 📋 Deployment Guide
+
+### Step 1: Prepare Your Assets
+
+1. **Generate NFT metadata:**
+   ```bash
+   node scripts/generateMetadata.js
+   ```
+
+2. **Upload to IPFS:**
+   - Upload your `NFTData/images/` and `NFTData/metadata_json/` folders to IPFS
+   - Update the IPFS hash in your `.env` file
+
+3. **Update metadata with IPFS hash:**
+   ```bash
+   node scripts/updateIPFSHash.js
+   ```
+
+### Step 2: Deploy Smart Contract
+
+1. **Compile the contract:**
+   ```bash
+   npx hardhat compile
+   ```
+
+2. **Deploy to Quai Network:**
+   ```bash
+   npx hardhat run scripts/deployERC721.js --network cyprus1
+   ```
+   
+   **Note**: The deployment script will use the configuration from your `.env` file. Make sure all required environment variables are set before deploying.
+
+3. **Verify deployment:**
+   ```bash
+   node scripts/verifyContract.js
+   ```
+
+4. **Update frontend configuration:**
+   Copy the deployed contract address to your `.env` file:
+   ```env
+   NEXT_PUBLIC_DEPLOYED_CONTRACT=0xYourDeployedContractAddress
+   ```
+
+### Step 3: Run the Frontend
 
 1. **Start the development server:**
    ```bash
@@ -94,7 +140,7 @@ NEXT_PUBLIC_DEPLOYED_CONTRACT=0xYourDeployedContractAddress
 
 3. **Connect your wallet:**
    - Click "Connect Wallet" in the dApp
-   - Approve the connection
+   - Approve the connection in Pelagus wallet
 
 ## Usage
 
@@ -115,7 +161,7 @@ If you're the contract owner (the address that deployed it), you'll see addition
 
 ## Contract Features
 
-The `TestERC721` contract includes:
+The `QuaiNFT` contract includes:
 
 - **Static Base URI**: Tokens get URIs in format `baseURI + tokenId`
 - **Owner-Only Controls**: Only the contract owner can update base URI, supply, and pricing
@@ -142,6 +188,11 @@ The `TestERC721` contract includes:
    - Run `npm install` to ensure all dependencies are installed
    - Check that your Node.js version is 18 or higher
 
+5. **Contract function errors:**
+   - Use `node scripts/verifyContract.js` to test contract functions
+   - Check that the contract address is correct in your `.env` file
+   - Verify the contract was deployed successfully
+
 ### Network Configuration
 
 The dApp is configured for the Quai Network Cyprus-1 testnet:
@@ -151,30 +202,83 @@ The dApp is configured for the Quai Network Cyprus-1 testnet:
 
 ## Development
 
-### Project Structure
+## 📁 Project Structure
 
 ```
 quai-nft-dapp/
-├── contracts/           # Smart contracts
-│   └── TestERC721.sol  # Main NFT contract
-├── src/
-│   ├── app/            # Next.js app directory
-│   ├── components/     # React components
-│   └── utils/          # Utility functions
-├── artifacts/          # Compiled contract artifacts
-└── hardhat.config.js   # Hardhat configuration
+├── contracts/              # Smart contracts
+│   └── QuaiNFT.sol        # Main NFT contract
+├── src/                   # Frontend source code
+│   ├── app/               # Next.js app directory
+│   ├── components/        # React components
+│   └── utils/             # Utility functions
+├── scripts/               # Deployment and utility scripts
+│   ├── deployERC721.js    # Contract deployment script
+│   ├── generateMetadata.js # NFT metadata generation
+│   ├── updateIPFSHash.js  # IPFS hash update utility
+│   └── verifyContract.js  # Contract verification script
+├── NFTData/               # NFT assets and metadata
+│   ├── images/            # NFT images
+│   ├── metadata_json/     # Generated metadata files
+│   ├── json_template.json # Metadata template
+│   └── README.md          # NFT data documentation
+├── src/utils/             # Utility functions and constants
+│   ├── constants.ts       # Application constants
+│   ├── quaisUtils.ts      # Quai Network utilities
+│   └── wallet/            # Wallet integration utilities
+├── artifacts/             # Compiled contract artifacts
+├── env.example            # Environment variables template
+└── hardhat.config.js      # Hardhat configuration
 ```
 
-### Available Scripts
+## 🛠️ Available Scripts
 
+### Frontend Scripts
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+### Smart Contract Scripts
 - `npx hardhat compile` - Compile contracts
 - `npx hardhat test` - Run contract tests
+- `npx hardhat run scripts/deployERC721.js` - Deploy contract
 
-## Contributing
+### Utility Scripts
+- `node scripts/generateMetadata.js` - Generate NFT metadata
+- `node scripts/updateIPFSHash.js` - Update IPFS hashes in metadata
+- `node scripts/verifyContract.js` - Verify contract deployment and functions
+
+## 🎨 Customization Guide
+
+### Customizing Your NFT Collection
+
+1. **Replace Assets:**
+   - Replace emoji files in the `emojis/` directory with your own images
+   - Update the metadata template in `NFTData/json_template.json`
+
+2. **Modify Smart Contract:**
+   - Edit `contracts/QuaiNFT.sol` to add custom functionality
+   - Update constructor parameters for different collection settings
+
+3. **Customize Frontend:**
+   - Modify components in `src/components/` for different UI/UX
+   - Update styling in `src/app/globals.css`
+
+4. **Configuration Options:**
+   - Use `env.example` as a template for your environment variables
+   - Set environment variables for different deployment environments
+   - Modify `src/utils/constants.ts` for application constants
+
+### Best Practices
+
+- **Security**: Never commit private keys or sensitive data
+- **Testing**: Test thoroughly on testnet before mainnet deployment
+- **Gas Optimization**: Consider gas costs when setting mint prices
+- **Metadata**: Ensure IPFS links are permanent and accessible
+- **User Experience**: Provide clear error messages and loading states
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -182,11 +286,15 @@ quai-nft-dapp/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-All emojis designed by [OpenMoji](https://openmoji.org) – the open-source emoji and icon project. License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/#)
+### Third-Party Attributions
+
+- **Emoji Assets**: [OpenMoji](https://openmoji.org) - CC BY-SA 4.0 License
+- **Smart Contracts**: [OpenZeppelin](https://openzeppelin.com/contracts/) - MIT License  
+- **Blockchain Network**: [Quai Network](https://quai.network/)
 
 ## Support
 

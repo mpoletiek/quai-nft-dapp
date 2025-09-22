@@ -6,11 +6,12 @@ import { useContext } from 'react';
 import { Toaster, toaster } from "@/components/ui/toaster"
 import { buildTransactionUrl, shortenAddress, sortedQuaiShardNames } from '@/utils/quaisUtils';
 import { quais } from 'quais';
-import TestNFT from '../../artifacts/contracts/TestERC721.sol/TestERC721.json';
+import QuaiNFT from '../../artifacts/contracts/QuaiNFT.sol/QuaiNFT.json';
 import { StateContext } from '@/app/store';
 import ConnectButton from '@/components/ui/connectButton';
 import { useGetAccounts } from '@/utils/wallet';
 import OwnerControls from '@/components/OwnerControls';
+import { DEPLOYED_CONTRACT } from '@/utils/constants';
 
 export default function Mint() {
   useGetAccounts();
@@ -28,130 +29,145 @@ export default function Mint() {
   const [remainingSupply, setRemainingSupply] = useState(0);
   const [contractBalance, setContractBalance] = useState(0);
   const { web3Provider, account } = useContext(StateContext);
-  const contractAddress = process.env.NEXT_PUBLIC_DEPLOYED_CONTRACT as string; // Change this to your contract address
+  
+  // Debug: Log contract address
+  console.log('Contract address from env:', DEPLOYED_CONTRACT);
 
   const getContractBalance = useCallback(async () => {
-	const resp = await fetch('https://orchard.quaiscan.io/api/v2/addresses/'+contractAddress);
-	const ret = await resp.json();
-	if(ret.coin_balance){
-  	setContractBalance(Number(ret.coin_balance)/Number(1000000000000000000));
-  	console.log("Contract Balance: "+contractBalance);
+	try {
+	  const balance = await web3Provider.getBalance(DEPLOYED_CONTRACT);
+	  const balanceInQuai = Number(balance) / 1e18;
+	  setContractBalance(balanceInQuai);
+	  console.log("Contract Balance: " + balanceInQuai);
+	} catch (error) {
+	  console.error('Error fetching contract balance:', error);
+	  // Set a default value or show error state
+	  setContractBalance(0);
 	}
-  }, [contractAddress, contractBalance])
+  }, [DEPLOYED_CONTRACT, contractBalance])
 
   const callContract = useCallback(async (type: string) => {
-	if(type == 'balanceOf') {
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const balance = await ERC721contract.balanceOf(account?.addr);
-  	if(balance){
-    	console.log("Balance: "+balance);
-    	setNFTBalance(Number(balance));
-  	}
-  	return balance;
+	try {
+	  if (!web3Provider || !account) {
+			throw new Error('Wallet not connected');
+	  }
+	  
+	  if (!DEPLOYED_CONTRACT || DEPLOYED_CONTRACT === 'YOUR_CONTRACT_ADDRESS_HERE') {
+			throw new Error('Contract address not configured. Please set NEXT_PUBLIC_DEPLOYED_CONTRACT in your .env file');
+	  }
+
+	  console.log(`Calling contract function: ${type}`);
+	  console.log(`Contract address: ${DEPLOYED_CONTRACT}`);
+	  console.log(`Account: ${account?.addr}`);
+
+
+	  if(type == 'balanceOf') {
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+
+			const balance = await ERC721contract.balanceOf(account?.addr);
+			if(balance){
+				console.log("Balance: "+balance);
+				setNFTBalance(Number(balance));
+			}
+			return balance;
+	  }
+	  else if(type == 'symbol'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const contractSymbol = await ERC721contract.symbol();
+			if(contractSymbol){
+				setSymbol(contractSymbol);
+			}
+			return contractSymbol;
+	  }
+	  else if(type == 'name'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const contractName = await ERC721contract.name();
+			if(contractName){
+				setNFTName(contractName);
+			}
+			return contractName;
+	  }
+	  else if(type == 'owner'){
+			console.log('Calling owner() function...');
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const contractOwner = await ERC721contract.owner();
+			console.log('Owner result:', contractOwner);
+			if(account?.addr == contractOwner){
+				setIsOwner(true);
+			}
+			return contractOwner;
+	  }
+	  else if(type == 'mintPrice'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const price = await ERC721contract.mintPrice();
+			if(price){
+				console.log('mintPrice: '+(price/BigInt(1000000000000000000)));
+				setMintPrice(price/BigInt(1000000000000000000));
+			}
+			return price;
+	  }
+	  else if(type == 'tokenid'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const tokenid = await ERC721contract.tokenIds();
+			if(tokenid >= 0){
+				console.log("tokenid: "+tokenid);
+				setTokenId(tokenid);
+			}
+	  }
+	  else if(type == 'supply'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const supply = await ERC721contract.supply();
+			if(supply){
+				console.log("supply: "+supply);
+				setTokenSupply(supply);
+			}
+			return supply;
+	  }
+	  else if(type == 'mint'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const price = await ERC721contract.mintPrice();
+			const contractTransaction = await ERC721contract.mint(account?.addr,{value: price});
+			const txReceipt = await contractTransaction.wait();
+			return Promise.resolve({ result: txReceipt, method: "Mint" });
+	  }
+	  else if(type == 'withdraw'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const contractTransaction = await ERC721contract.withdraw();
+			const txReceipt = await contractTransaction.wait();
+			console.log(txReceipt);
+			return Promise.resolve({ result: txReceipt, method: "Withdraw" });
+	  }
+	  else if(type=='baseTokenURI'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const uri = await ERC721contract.baseTokenURI();
+			if(uri){
+				setBaseTokenURI(uri);
+			}
+			return uri;
+	  }
+	  else if(type=='tokenURI'){
+			if(tokenIdInput.trim() !== ''){
+				const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+				const tokenId = parseInt(tokenIdInput);
+				console.log("Fetching Token URI for ID: "+tokenId);
+				const tokenURI = await ERC721contract.tokenURI(tokenId);
+				setRetrievedTokenURI(tokenURI);
+				return Promise.resolve({ result: tokenURI, method: "tokenURI" });
+			}
+	  }
+	  else if(type=='maxMintPerAddress'){
+			const ERC721contract = new quais.Contract(DEPLOYED_CONTRACT, QuaiNFT.abi, await web3Provider.getSigner());
+			const maxMint = await ERC721contract.maxMintPerAddress();
+			if(maxMint){
+				setMaxMintPerAddress(Number(maxMint));
+			}
+			return maxMint;
+	  }
+	} catch (error) {
+	  console.error(`Error in callContract (${type}):`, error);
+	  throw error;
 	}
-	else if(type == 'symbol'){
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const contractSymbol = await ERC721contract.symbol();
-  	if(contractSymbol){
-    	setSymbol(contractSymbol);
-  	}
-  	return contractSymbol;
-	}
-	else if(type == 'name'){
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const contractName = await ERC721contract.name();
-  	if(contractName){
-    	setNFTName(contractName);
-  	}
-  	return contractName;
-	}
-	else if(type == 'owner'){
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const contractOwner = await ERC721contract.owner();
-  	if(account?.addr == contractOwner){
-    	setIsOwner(true);
-  	}
-  	return contractOwner;
-	}
-	else if(type == 'mintPrice'){
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const price = await ERC721contract.mintPrice();
-  	if(price){
-    	console.log('mintPrice: '+(price/BigInt(1000000000000000000)));
-    	setMintPrice(price/BigInt(1000000000000000000));
-  	}
-  	return price;
-	}
-	else if(type == 'tokenid'){
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const tokenid = await ERC721contract.tokenIds();
-  	if(tokenid >= 0){
-    	console.log("tokenid: "+tokenid);
-    	setTokenId(tokenid);
-  	}
-	}
-	else if(type == 'supply'){
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const supply = await ERC721contract.supply();
-  	if(supply){
-    	console.log("supply: "+supply);
-    	setTokenSupply(supply);
-  	}
-  	return supply;
-	}
-	else if(type == 'mint'){
-  	try {
-    	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-    	const price = await ERC721contract.mintPrice();
-    	const contractTransaction = await ERC721contract.mint(account?.addr,{value: price});
-    	const txReceipt = await contractTransaction.wait();
-    	return Promise.resolve({ result: txReceipt, method: "Mint" });
-  	} catch (err) {
-    	return Promise.reject(err);
-  	}
-	}
-	else if(type == 'withdraw'){
-  	try {
-    	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-    	const contractTransaction = await ERC721contract.withdraw();
-    	const txReceipt = await contractTransaction.wait();
-    	console.log(txReceipt);
-    	return Promise.resolve({ result: txReceipt, method: "Withdraw" });
-  	} catch (err) {
-    	return Promise.reject(err);
-  	}
-	}
-	else if(type=='baseTokenURI'){
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const uri = await ERC721contract.baseTokenURI();
-  	if(uri){
-    	setBaseTokenURI(uri);
-  	}
-  	return uri;
-	}
-	else if(type=='tokenURI'){
-  	try {
-    	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-    	if(tokenIdInput.trim() !== ''){
-      	const tokenId = parseInt(tokenIdInput);
-      	console.log("Fetching Token URI for ID: "+tokenId);
-      	const tokenURI = await ERC721contract.tokenURI(tokenId);
-      	setRetrievedTokenURI(tokenURI);
-      	return Promise.resolve({ result: tokenURI, method: "tokenURI" });
-    	}
-  	} catch (err) {
-    	return Promise.reject(err);
-  	}
-	}
-	else if(type=='maxMintPerAddress'){
-  	const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
-  	const maxMint = await ERC721contract.maxMintPerAddress();
-  	if(maxMint){
-    	setMaxMintPerAddress(Number(maxMint));
-  	}
-  	return maxMint;
-	}
-  }, [contractAddress, web3Provider, account, tokenIdInput]);
+  }, [DEPLOYED_CONTRACT, web3Provider, account, tokenIdInput]);
 
 
 
@@ -199,57 +215,65 @@ export default function Mint() {
 
   // HANDLE FETCH TOKEN URI
   const handleFetchTokenURI = async () => {
-	setRetrievedTokenURI(''); // Clear previous result
-	toaster.promise(
-  	callContract('tokenURI'),
-  	{
-    	loading: {
-      	title: 'Fetching Token URI',
-      	description: 'Retrieving metadata from blockchain...',
-    	},
-    	success: ({result}) => (
-      	{
-      	title: 'Token URI Retrieved',
-      	description: (
-        	<>
-          	<p className="mb-2">Token ID: {tokenIdInput}</p>
-          	{result && (
-            	<a
-              	className="underline text-blue-400 hover:text-blue-300"
-              	href={result}
-              	target="_blank"
-              	rel="noopener noreferrer"
-            	>
-              	View Metadata
-            	</a>
-          	)}
-        	</>
-      	),
-      	duration: 10000,
-    	}),
-    	error: (error: any) => ({
-      	title: 'Error',
-      	description: error.reason || error.message || 'Token not found or invalid ID',
-      	duration: 10000,
-    	}),
-  	}
-	);
+		setRetrievedTokenURI(''); // Clear previous result
+		toaster.promise(
+			callContract('tokenURI'),
+			{
+				loading: {
+					title: 'Fetching Token URI',
+					description: 'Retrieving metadata from blockchain...',
+				},
+				success: ({result}) => (
+					{
+					title: 'Token URI Retrieved',
+					description: (
+						<>
+							<p className="mb-2">Token ID: {tokenIdInput}</p>
+							{result && (
+								<a
+									className="underline text-blue-400 hover:text-blue-300"
+									href={result}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									View Metadata
+								</a>
+							)}
+						</>
+					),
+					duration: 10000,
+				}),
+				error: (error: any) => ({
+					title: 'Error',
+					description: error.reason || error.message || 'Token not found or invalid ID',
+					duration: 10000,
+				}),
+			}
+		);
   };
 
 
 
   useEffect(()=>{
-	if(account){
-  	callContract('owner');
-  	callContract('tokenid');
-  	callContract('supply');
-  	callContract('mintPrice');
-  	callContract('balanceOf');
-  	callContract('symbol');
-  	callContract('name');
-  	callContract('baseTokenURI');
-  	callContract('maxMintPerAddress');
-  	getContractBalance();
+	if(account && web3Provider && DEPLOYED_CONTRACT && DEPLOYED_CONTRACT !== 'YOUR_CONTRACT_ADDRESS_HERE'){
+	  console.log('Wallet connected, calling contract functions...');
+	  // Call contract functions with error handling
+	  const contractCalls = [
+		'owner', 'tokenid', 'supply', 'mintPrice', 
+		'balanceOf', 'symbol', 'name', 'baseTokenURI', 'maxMintPerAddress'
+	  ];
+	  
+	  contractCalls.forEach(async (callType) => {
+		try {
+		  await callContract(callType);
+		} catch (error) {
+		  console.error(`Failed to call ${callType}:`, error);
+		}
+	  });
+	  
+	  getContractBalance();
+	} else {
+	  console.log('Wallet not ready:', { account: !!account, web3Provider: !!web3Provider, DEPLOYED_CONTRACT });
 	}
 	if((Number(tokenId) >= 0) && (Number(tokenSupply) >= 0)){
   	if(tokenId == 0){
@@ -259,7 +283,7 @@ export default function Mint() {
   	}
   	console.log("Remaining Supply: "+remainingSupply);
 	}
-  }, [account, tokenId, tokenSupply, callContract, getContractBalance, remainingSupply]);
+  }, [account, web3Provider, DEPLOYED_CONTRACT, tokenId, tokenSupply, callContract, getContractBalance, remainingSupply]);
 
   return (
 	<>
@@ -338,7 +362,7 @@ export default function Mint() {
             	<p className="text-lg text-gray-300">
               	<span className="text-gray-400">Symbol:</span>{' '}
               	<a 
-                	href={`https://orchard.quaiscan.io/token/${contractAddress}`} 
+                	href={`https://orchard.quaiscan.io/token/${DEPLOYED_CONTRACT}`} 
                 	target="_blank" 
                 	rel="noopener noreferrer"
                 	className="text-blue-400 hover:text-blue-300 transition-colors font-semibold"
@@ -604,7 +628,7 @@ export default function Mint() {
       	{/* Owner Controls Section */}
       	<div className="max-w-6xl mx-auto px-6 mb-12">
         	<OwnerControls 
-          	contractAddress={contractAddress}
+          	contractAddress={DEPLOYED_CONTRACT}
           	isOwner={isOwner}
           	account={account}
         	/>

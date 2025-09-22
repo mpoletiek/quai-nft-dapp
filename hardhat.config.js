@@ -12,12 +12,12 @@ module.exports = {
   defaultNetwork: 'cyprus1',
   networks: {
     cyprus1: {
-      url: process.env.RPC_URL,
+      url: process.env.NEXT_PUBLIC_RPC_URL,
       accounts: [process.env.CYPRUS1_PK],
       chainId: Number(process.env.CHAIN_ID),
     },
     cyprus1_fullpath: {
-      url: "https://orchard.rpc.quai.network/cyprus1",
+      url: `${process.env.NEXT_PUBLIC_RPC_URL}/cyprus1`,
       accounts: [process.env.CYPRUS1_PK],
       chainId: Number(process.env.CHAIN_ID),
     },

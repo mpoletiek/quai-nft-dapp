@@ -1,6 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 
 import { quais } from 'quais';
+import { RPC_URL, EXPLORER_BASE_URL } from '@/utils/constants';
 
 // ---- formatting ---- //
 export const shortenAddress = (address: string): string => {
@@ -14,19 +15,19 @@ export const sortedQuaiShardNames: ShardNames = {
 
 // ---- explorer url builders ---- //
 export const buildRpcUrl = (): string => {
-  return `https://orchard.rpc.quai.network`;
+  return `${RPC_URL}`;
 };
 
 export const buildExplorerUrl = (): string => {
-  return `https://orchard.quaiscan.io`;
+  return `${EXPLORER_BASE_URL}`;
 };
 
 export const buildAddressUrl = (address: string): string => {
-  return `https://orchard.quaiscan.io/address/${address}`;
+  return `${EXPLORER_BASE_URL}/address/${address}`;
 };
 
 export const buildTransactionUrl = (txHash: string): string => {
-  return `https://orchard.quaiscan.io/tx/${txHash}`;
+  return `${EXPLORER_BASE_URL}/tx/${txHash}`;
 };
 
 // ---- dispatchers ---- //

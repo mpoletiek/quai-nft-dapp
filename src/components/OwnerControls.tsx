@@ -6,7 +6,7 @@ import { useContext } from 'react';
 import { toaster } from "@/components/ui/toaster"
 import { buildTransactionUrl } from '@/utils/quaisUtils';
 import { quais } from 'quais';
-import TestNFT from '../../artifacts/contracts/TestERC721.sol/TestERC721.json';
+import QuaiNFT from '../../artifacts/contracts/QuaiNFT.sol/QuaiNFT.json';
 import { StateContext } from '@/app/store';
 
 interface OwnerControlsProps {
@@ -26,7 +26,7 @@ export default function OwnerControls({ contractAddress, isOwner, account }: Own
   const callContract = async (type: string) => {
     if(type == 'updateSupply'){
       try {
-        const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
+        const ERC721contract = new quais.Contract(contractAddress, QuaiNFT.abi, await web3Provider.getSigner());
         if(newSupply > 0){
           console.log("New Supply Value: "+newSupply);
           const contractTransaction = await ERC721contract.updateSupply(newSupply);
@@ -40,7 +40,7 @@ export default function OwnerControls({ contractAddress, isOwner, account }: Own
     }
     else if(type == 'updatePrice'){
       try {
-        const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
+        const ERC721contract = new quais.Contract(contractAddress, QuaiNFT.abi, await web3Provider.getSigner());
         
         const priceQuai = quais.parseQuai(String(newPrice));
         console.log("New Price Value: "+priceQuai);
@@ -55,7 +55,7 @@ export default function OwnerControls({ contractAddress, isOwner, account }: Own
     }
     else if(type == 'updateBaseTokenURI'){
       try {
-        const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
+        const ERC721contract = new quais.Contract(contractAddress, QuaiNFT.abi, await web3Provider.getSigner());
         if(newBaseTokenURI.trim() !== ''){
           console.log("New Base Token URI: "+newBaseTokenURI);
           const contractTransaction = await ERC721contract.updateBaseTokenURI(newBaseTokenURI);
@@ -69,7 +69,7 @@ export default function OwnerControls({ contractAddress, isOwner, account }: Own
     }
     else if(type == 'updateMaxMintPerAddress'){
       try {
-        const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
+        const ERC721contract = new quais.Contract(contractAddress, QuaiNFT.abi, await web3Provider.getSigner());
         if(newMaxMintPerAddress > 0){
           console.log("New Max Mint Per Address: "+newMaxMintPerAddress);
           const contractTransaction = await ERC721contract.updateMaxMintPerAddress(newMaxMintPerAddress);
@@ -83,7 +83,7 @@ export default function OwnerControls({ contractAddress, isOwner, account }: Own
     }
     else if(type == 'withdraw'){
       try {
-        const ERC721contract = new quais.Contract(contractAddress, TestNFT.abi, await web3Provider.getSigner());
+        const ERC721contract = new quais.Contract(contractAddress, QuaiNFT.abi, await web3Provider.getSigner());
         const contractTransaction = await ERC721contract.withdraw();
         const txReceipt = await contractTransaction.wait();
         console.log(txReceipt);
